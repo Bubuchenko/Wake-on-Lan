@@ -12,7 +12,7 @@ namespace MSA_WOL
 
         public static string SETTINGS_FILE = AppDomain.CurrentDomain.BaseDirectory + "settings.ini";
         public static string SUBNET_DIR = AppDomain.CurrentDomain.BaseDirectory + "locations";
-        public static string GetDHCPServer()
+        public static string[] GetDHCPServers()
         {
             if (!File.Exists(SETTINGS_FILE))
             {
@@ -20,12 +20,11 @@ namespace MSA_WOL
                 using (StreamWriter writer = new StreamWriter(SETTINGS_FILE))
                 {
                     writer.WriteLine("10.40.1.2");
+                    writer.WriteLine("192.168.31.1");
+                    writer.WriteLine("10.100.1.2");
                 }
             }
-            using (StreamReader reader = new StreamReader("settings.ini"))
-            {
-                return reader.ReadLine();
-            }
+            return File.ReadAllLines(SETTINGS_FILE);
         }
 
 

@@ -26,9 +26,18 @@ namespace MSA_WOL
                 foreach (string subnet in Settings.GetSubnetsFromFile(subnetFile))
                 {
                     //Add found machines to list
-                    machines.AddRange(DHCP.FindClientsOnSubnet(Settings.GetDHCPServer(), subnet, subnetFile));
+                    string[] DHCPServers = Settings.GetDHCPServers();
+
+                    foreach (string DHCPServer in DHCPServers)
+                    {
+                        //There are multiple DHCP servers (fail-over system, some leases may reside on different servers so.. query all of them)
+                        machines.AddRange(DHCP.FindClientsOnSubnet(DHCPServer, subnet, subnetFile));
+                    }
                 }
             }
+
+            //Select them distinctly
+            machines = machines.GroupBy(x => x.mac).Select(x => x.First()).ToList();
 
             foreach (Machine machine in machines)
             {
@@ -41,7 +50,7 @@ namespace MSA_WOL
             Thread.Sleep(10000); //Wait 5 minutes
             Console.WriteLine("Initiating pinging...");
 
-            
+
             foreach (Machine machine in machines)
             {
                 if (machine.hostname != null)
